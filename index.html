@@ -3,14 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Una descripción breve de la página.">
-    <meta name="keywords" content="HTML, meta, etiquetas, tutorial">
-    <meta name="author" content="Tu Nombre">
-    <title>home</title>
-     <link rel="stylesheet" href="estilos.css">
+    <title>DeliveryApp - Inicio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: white;
+            color: var(--dark);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+        }
+        
+        .hero h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #666;
+        }
+        
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            width: 280px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-card i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .feature-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 30px 0;
+            margin-top: 60px;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-buttons {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .features {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .feature-card {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>Hola Mundo</h1>
-    <script src="app.js"></script>
+    <header>
+        <div class="header-container">
+            <div class="logo">DeliveryApp</div>
+            <div class="nav-buttons">
+                <button class="btn-primary" onclick="window.location.href='cliente.html'">Cliente</button>
+                <button class="btn-secondary" onclick="window.location.href='admin.html'">Administrador</button>
+                <button class="btn-accent" onclick="window.location.href='motorista.html'">Motorista</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Bienvenido a DeliveryApp</h1>
+            <p>La plataforma integral para gestionar tus entregas de comida</p>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <i class="fas fa-user" style="color: var(--primary);"></i>
+                    <h3>Cliente</h3>
+                    <p>Realiza pedidos y haz seguimiento de tus entregas</p>
+                    <button class="btn-primary" onclick="window.location.href='cliente.html'">Acceder como Cliente</button>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-user-tie" style="color: var(--secondary);"></i>
+                    <h3>Administrador</h3>
+                    <p>Gestiona órdenes y asigna motoristas</p>
+                    <button class="btn-secondary" onclick="window.location.href='admin.html'">Acceder como Administrador</button>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-motorcycle" style="color: var(--accent);"></i>
+                    <h3>Motorista</h3>
+                    <p>Gestiona tus entregas y revisa tu rendimiento</p>
+                    <button class="btn-accent" onclick="window.location.href='motorista.html'">Acceder como Motorista</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2023 DeliveryApp - Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+    <script>
+        // Inicializar datos en localStorage si no existen
+        function initializeStorage() {
+            if (!localStorage.getItem('deliveryOrders')) {
+                localStorage.setItem('deliveryOrders', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('deliveryDrivers')) {
+                const drivers = Array.from({ length: 100 }, (_, i) => ({
+                    id: i + 1,
+                    name: `Motorista ${i + 1}`,
+                    username: `motorista${i + 1}`,
+                    password: '1234',
+                    orders: 0,
+                    status: "available"
+                }));
+                localStorage.setItem('deliveryDrivers', JSON.stringify(drivers));
+            }
+        }
+
+        // Inicializar la aplicación
+        window.onload = function() {
+            initializeStorage();
+        };
+    </script>
 </body>
 </html>
