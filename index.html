@@ -199,5 +199,30 @@
       location.reload();
     }
   </script>
+<script>
+  function finalizarCompra(event) {
+    event.preventDefault();
+    const nombre = event.target[0].value;
+    const direccion = event.target[1].value;
+    const telefono = event.target[2].value;
+
+    const pedido = {
+      cliente: nombre,
+      direccion: direccion,
+      telefono: telefono,
+      productos: carrito,
+      estado: "Pendiente"
+    };
+
+    // Guardar en localStorage
+    let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    pedidos.push(pedido);
+    localStorage.setItem("pedidos", JSON.stringify(pedidos));
+
+    alert("¡Pedido realizado con éxito! El repartidor lo recibirá.");
+    carrito = [];
+    location.href = "motorista.html"; // Redirigir al repartidor
+  }
+</script>
 </body>
 </html>
