@@ -5,6 +5,13 @@
 body {
    font-size:20px; 
 }
+.central{
+width: 50%;
+height: 200px;
+margi: auto;
+background: red;
+color: #fff;
+}
 .grid{
     display:grid;
     grid-template-columns:1fr;
