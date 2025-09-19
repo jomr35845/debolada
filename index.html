@@ -211,17 +211,18 @@
       direccion: direccion,
       telefono: telefono,
       productos: carrito,
-      estado: "Pendiente"
+      estado: "Pendiente",
+      timestamp: Date.now() // Guardamos el momento exacto de la orden
     };
 
-    // Guardar en localStorage
+    // Guardamos en localStorage (simulando que se manda al repartidor)
     let pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
     pedidos.push(pedido);
     localStorage.setItem("pedidos", JSON.stringify(pedidos));
 
     alert("¡Pedido realizado con éxito! El repartidor lo recibirá.");
     carrito = [];
-    location.href = "motorista.html"; // Redirigir al repartidor
+    location.href = "repartidor.html"; 
   }
 </script>
 </body>
