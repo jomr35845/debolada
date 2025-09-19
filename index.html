@@ -3,14 +3,666 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Una descripción breve de la página.">
-    <meta name="keywords" content="HTML, meta, etiquetas, tutorial">
-    <meta name="author" content="Tu Nombre">
-    <title>home</title>
-     <link rel="stylesheet" href="css/estilos.css">
+    <title>DeliveryApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .local-card {
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .local-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        #repartidorPanel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        #repartidorPanel.show {
+            transform: translateX(0);
+        }
+        .notification-sound {
+            display: none;
+        }
+        .order-card {
+            border-left: 4px solid #0d6efd;
+        }
+        .order-card.new {
+            border-left: 4px solid #dc3545;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
-<h1>Orden <strong>#989</strong></h1>
-    <script src="js/modulo.js"></script>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showPage('index')">
+                <i class="fas fa-utensils me-2"></i>DeliveryApp
+            </a>
+            <div class="d-flex">
+                <button class="btn btn-outline-light me-2 position-relative" onclick="showPage('cart')">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </button>
+                <button id="repartidorBtn" class="btn btn-outline-light" onclick="toggleRepartidorPanel()">
+                    <i class="fas fa-motorcycle"></i> Panel Repartidor
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Página Principal (Index) -->
+    <div id="indexPage" class="container my-4">
+        <h2 class="mb-4">Nuestros Locales</h2>
+        <div class="row" id="localesList">
+            <!-- Los locales se cargarán aquí -->
+        </div>
+    </div>
+
+    <!-- Página de Productos del Local -->
+    <div id="localPage" class="container my-4 d-none">
+        <div class="d-flex align-items-center mb-4">
+            <button class="btn btn-secondary me-3" onclick="showPage('index')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2 id="localName"></h2>
+        </div>
+        <div class="row" id="productosList">
+            <!-- Los productos se cargarán aquí -->
+        </div>
+    </div>
+
+    <!-- Página del Carrito -->
+    <div id="cartPage" class="container my-4 d-none">
+        <div class="d-flex align-items-center mb-4">
+            <button class="btn btn-secondary me-3" onclick="showPage('index')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>Tu Carrito</h2>
+        </div>
+        <div id="cartItems">
+            <!-- Los items del carrito se mostrarán aquí -->
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-light rounded">
+            <h4 class="m-0">Total: $<span id="cartTotal">0.00</span></h4>
+            <button class="btn btn-primary btn-lg" onclick="showPage('checkout')">Continuar con el Pedido</button>
+        </div>
+    </div>
+
+    <!-- Página de Checkout -->
+    <div id="checkoutPage" class="container my-4 d-none">
+        <div class="d-flex align-items-center mb-4">
+            <button class="btn btn-secondary me-3" onclick="showPage('cart')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>Finalizar Pedido</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Datos del Cliente</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="checkoutForm">
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Nombre completo</label>
+                                <input type="text" class="form-control" id="customerName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerPhone" class="form-label">Número de teléfono</label>
+                                <input type="tel" class="form-control" id="customerPhone" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerAddress" class="form-label">Dirección de entrega</label>
+                                <textarea class="form-control" id="customerAddress" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Método de pago</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="cashPayment" value="efectivo" checked>
+                                    <label class="form-check-label" for="cashPayment">
+                                        Efectivo
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment" value="tarjeta">
+                                    <label class="form-check-label" for="cardPayment">
+                                        Tarjeta de crédito/débito
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-check-circle me-2"></i> Realizar Pedido
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Resumen del Pedido</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="orderSummary">
+                            <!-- Resumen del pedido -->
+                        </div>
+                        <hr>
+                        <h4 class="text-end">Total: $<span id="orderTotal">0.00</span></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel del Repartidor -->
+    <div id="repartidorPanel">
+        <div class="p-3 bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-motorcycle me-2"></i> Panel Repartidor</h5>
+            <button class="btn btn-sm btn-outline-light" onclick="toggleRepartidorPanel()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Pedidos Pendientes</h6>
+                <button class="btn btn-sm btn-outline-primary" onclick="loadOrders()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div id="ordersList">
+                <!-- Los pedidos se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación de sonido (oculta) -->
+    <audio id="notificationSound" class="notification-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-tone-996.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Firebase App (initialization) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // Inicialización de Firebase (configuración de ejemplo)
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+        
+        // Inicializar Firebase (comenta esto si no tienes configuración real)
+        // firebase.initializeApp(firebaseConfig);
+        
+        // Simulación de base de datos para el ejemplo
+        const mockDatabase = {
+            orders: [],
+            listeners: [],
+            ref: function(path) {
+                return {
+                    push: function(data) {
+                        const key = 'order_' + Date.now();
+                        mockDatabase.orders.push({...data, key});
+                        mockDatabase.notifyListeners();
+                        return {
+                            key: key
+                        };
+                    },
+                    on: function(eventType, callback) {
+                        mockDatabase.listeners.push(callback);
+                    },
+                    off: function() {
+                        mockDatabase.listeners = [];
+                    }
+                };
+            },
+            notifyListeners: function() {
+                mockDatabase.listeners.forEach(callback => {
+                    callback({
+                        val: () => mockDatabase.orders
+                    });
+                });
+            }
+        };
+
+        // Datos de ejemplo
+        const locales = [
+            { id: 1, name: "Pizzería Napoli", image: "https://via.placeholder.com/300x200/FF0000/FFFFFF?text=Pizzería+Napoli" },
+            { id: 2, name: "Sushi Paradise", image: "https://via.placeholder.com/300x200/0000FF/FFFFFF?text=Sushi+Paradise" },
+            { id: 3, name: "Burger Factory", image: "https://via.placeholder.com/300x200/FF9900/FFFFFF?text=Burger+Factory" },
+            { id: 4, name: "Tacos México", image: "https://via.placeholder.com/300x200/00FF00/FFFFFF?text=Tacos+México" },
+            { id: 5, name: "China Express", image: "https://via.placeholder.com/300x200/CC0000/FFFFFF?text=China+Express" },
+            { id: 6, name: "Italianissimo", image: "https://via.placeholder.com/300x200/0066CC/FFFFFF?text=Italianissimo" },
+            { id: 7, name: "El Asador", image: "https://via.placeholder.com/300x200/663300/FFFFFF?text=El+Asador" },
+            { id: 8, name: "Fresh Salads", image: "https://via.placeholder.com/300x200/00CC66/FFFFFF?text=Fresh+Salads" },
+            { id: 9, name: "Donut World", image: "https://via.placeholder.com/300x200/FF00FF/FFFFFF?text=Donut+World" },
+            { id: 10, name: "Coffee Time", image: "https://via.placeholder.com/300x200/663300/FFFFFF?text=Coffee+Time" },
+            { id: 11, name: "Ice Cream Dream", image: "https://via.placeholder.com/300x200/99CCFF/FFFFFF?text=Ice+Cream+Dream" },
+            { id: 12, name: "Sea Food Market", image: "https://via.placeholder.com/300x200/006699/FFFFFF?text=Sea+Food+Market" },
+            { id: 13, name: "Vegan Life", image: "https://via.placeholder.com/300x200/00CC00/FFFFFF?text=Vegan+Life" }
+        ];
+
+        const productos = {
+            1: [
+                { id: 101, name: "Pizza Margherita", price: 8.99, image: "https://via.placeholder.com/150/FF0000/FFFFFF?text=Pizza+Margherita" },
+                { id: 102, name: "Pizza Pepperoni", price: 9.99, image: "https://via.placeholder.com/150/FF0000/FFFFFF?text=Pizza+Pepperoni" },
+                { id: 103, name: "Pizza Hawaiana", price: 10.99, image: "https://via.placeholder.com/150/FF0000/FFFFFF?text=Pizza+Hawaiana" }
+            ],
+            2: [
+                { id: 201, name: "Roll California", price: 12.99, image: "https://via.placeholder.com/150/0000FF/FFFFFF?text=Roll+California" },
+                { id: 202, name: "Sashimi Mixto", price: 15.99, image: "https://via.placeholder.com/150/0000FF/FFFFFF?text=Sashimi+Mixto" },
+                { id: 203, name: "Tempura", price: 9.99, image: "https://via.placeholder.com/150/0000FF/FFFFFF?text=Tempura" }
+            ],
+            // ... productos para otros locales
+        };
+
+        // Variables globales
+        let cart = [];
+        let currentLocal = null;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLocales();
+            setupEventListeners();
+            listenForNewOrders();
+        });
+
+        // Cargar locales en la página principal
+        function loadLocales() {
+            const localesContainer = document.getElementById('localesList');
+            localesContainer.innerHTML = '';
+            
+            locales.forEach(local => {
+                const localCard = document.createElement('div');
+                localCard.className = 'col-md-4 mb-4';
+                localCard.innerHTML = `
+                    <div class="card local-card" onclick="showLocal(${local.id})">
+                        <img src="${local.image}" class="card-img-top" alt="${local.name}">
+                        <div class="card-body">
+                            <h5 class="card-title">${local.name}</h5>
+                            <p class="card-text">¡Prueba nuestras delicias!</p>
+                        </div>
+                    </div>
+                `;
+                localesContainer.appendChild(localCard);
+            });
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                placeOrder();
+            });
+        }
+
+        // Mostrar página específica
+        function showPage(pageId) {
+            document.getElementById('indexPage').classList.add('d-none');
+            document.getElementById('localPage').classList.add('d-none');
+            document.getElementById('cartPage').classList.add('d-none');
+            document.getElementById('checkoutPage').classList.add('d-none');
+            
+            if (pageId === 'index') {
+                document.getElementById('indexPage').classList.remove('d-none');
+            } else if (pageId === 'local' && currentLocal) {
+                document.getElementById('localPage').classList.remove('d-none');
+                showLocalProducts(currentLocal);
+            } else if (pageId === 'cart') {
+                document.getElementById('cartPage').classList.remove('d-none');
+                updateCartDisplay();
+            } else if (pageId === 'checkout') {
+                document.getElementById('checkoutPage').classList.remove('d-none');
+                updateOrderSummary();
+            }
+        }
+
+        // Mostrar productos de un local
+        function showLocal(localId) {
+            currentLocal = locales.find(local => local.id === localId);
+            showPage('local');
+        }
+
+        function showLocalProducts() {
+            if (!currentLocal) return;
+            
+            document.getElementById('localName').textContent = currentLocal.name;
+            const productsContainer = document.getElementById('productosList');
+            productsContainer.innerHTML = '';
+            
+            const localProducts = productos[currentLocal.id] || [];
+            
+            localProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'col-md-4 mb-4';
+                productCard.innerHTML = `
+                    <div class="card h-100">
+                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body">
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text">Precio: $${product.price.toFixed(2)}</p>
+                            <button class="btn btn-primary" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, ${currentLocal.id}, '${currentLocal.name}')">
+                                Agregar al carrito
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productsContainer.appendChild(productCard);
+            });
+        }
+
+        // Funciones del carrito
+        function addToCart(productId, productName, price, localId, localName) {
+            const existingItem = cart.find(item => item.productId === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    productId,
+                    productName,
+                    price,
+                    quantity: 1,
+                    localId,
+                    localName
+                });
+            }
+            
+            updateCartCount();
+            showNotification('Producto agregado', `${productName} se ha añadido al carrito`);
+        }
+
+        function updateCartCount() {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalItems;
+        }
+
+        function updateCartDisplay() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            const cartTotalElement = document.getElementById('cartTotal');
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<div class="alert alert-info">Tu carrito está vacío</div>';
+                cartTotalElement.textContent = '0.00';
+                return;
+            }
+            
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                const cartItem = document.createElement('div');
+                cartItem.className = 'card mb-3';
+                cartItem.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">${item.productName}</h5>
+                                <p class="card-text">${item.localName} - $${item.price.toFixed(2)} c/u</p>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, ${item.quantity - 1})">-</button>
+                                <span class="mx-2">${item.quantity}</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, ${item.quantity + 1})">+</button>
+                                <button class="btn btn-sm btn-outline-danger ms-3" onclick="removeFromCart(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-end mt-2">
+                            <strong>Total: $${itemTotal.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(cartItem);
+            });
+            
+            cartTotalElement.textContent = total.toFixed(2);
+        }
+
+        function updateQuantity(index, newQuantity) {
+            if (newQuantity < 1) {
+                removeFromCart(index);
+                return;
+            }
+            
+            cart[index].quantity = newQuantity;
+            updateCartDisplay();
+            updateCartCount();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+            updateCartCount();
+        }
+
+        // Actualizar resumen del pedido
+        function updateOrderSummary() {
+            const orderSummary = document.getElementById('orderSummary');
+            const orderTotal = document.getElementById('orderTotal');
+            
+            let total = 0;
+            orderSummary.innerHTML = '';
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'd-flex justify-content-between mb-2';
+                itemElement.innerHTML = `
+                    <span>${item.productName} x${item.quantity}</span>
+                    <span>$${itemTotal.toFixed(2)}</span>
+                `;
+                orderSummary.appendChild(itemElement);
+            });
+            
+            orderTotal.textContent = total.toFixed(2);
+        }
+
+        // Realizar pedido
+        function placeOrder() {
+            const customerName = document.getElementById('customerName').value;
+            const customerPhone = document.getElementById('customerPhone').value;
+            const customerAddress = document.getElementById('customerAddress').value;
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            
+            const order = {
+                customer: {
+                    name: customerName,
+                    phone: customerPhone,
+                    address: customerAddress
+                },
+                paymentMethod: paymentMethod,
+                items: cart,
+                total: cart.reduce((total, item) => total + (item.price * item.quantity), 0),
+                status: 'pendiente',
+                timestamp: new Date().toISOString()
+            };
+            
+            // Guardar en Firebase (o mock para el ejemplo)
+            // const db = firebase.database();
+            // const ordersRef = db.ref('orders');
+            // ordersRef.push(order);
+            
+            // Para el ejemplo, usamos mockDatabase
+            mockDatabase.ref('orders').push(order);
+            
+            // Limpiar carrito
+            cart = [];
+            updateCartCount();
+            
+            // Mostrar mensaje de éxito
+            alert('¡Pedido realizado con éxito! Será procesado en breve.');
+            
+            // Volver al inicio
+            showPage('index');
+            
+            // Limpiar formulario
+            document.getElementById('checkoutForm').reset();
+        }
+
+        // Panel de repartidor
+        function toggleRepartidorPanel() {
+            const panel = document.getElementById('repartidorPanel');
+            panel.classList.toggle('show');
+            
+            if (panel.classList.contains('show')) {
+                loadOrders();
+            }
+        }
+
+        function loadOrders() {
+            // Obtener pedidos de Firebase (o mock para el ejemplo)
+            // const db = firebase.database();
+            // const ordersRef = db.ref('orders');
+            // ordersRef.on('value', (snapshot) => {
+            //     const orders = snapshot.val();
+            //     displayOrders(orders);
+            // });
+            
+            // Para el ejemplo, usamos mockDatabase
+            const orders = mockDatabase.orders;
+            displayOrders(orders);
+        }
+
+        function displayOrders(orders) {
+            const ordersContainer = document.getElementById('ordersList');
+            ordersContainer.innerHTML = '';
+            
+            if (!orders || orders.length === 0) {
+                ordersContainer.innerHTML = '<div class="alert alert-info">No hay pedidos pendientes</div>';
+                return;
+            }
+            
+            // Filtrar solo pedidos pendientes
+            const pendingOrders = orders.filter(order => order.status === 'pendiente');
+            
+            if (pendingOrders.length === 0) {
+                ordersContainer.innerHTML = '<div class="alert alert-info">No hay pedidos pendientes</div>';
+                return;
+            }
+            
+            pendingOrders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'card mb-3 order-card';
+                orderCard.innerHTML = `
+                    <div class="card-body">
+                        <h6 class="card-title">Pedido #${order.key.substring(6)}</h6>
+                        <p><strong>Cliente:</strong> ${order.customer.name}</p>
+                        <p><strong>Dirección:</strong> ${order.customer.address}</p>
+                        <p><strong>Teléfono:</strong> ${order.customer.phone}</p>
+                        <p><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+                        <p><strong>Método de pago:</strong> ${order.paymentMethod}</p>
+                        <div class="d-grid">
+                            <button class="btn btn-sm btn-success" onclick="acceptOrder('${order.key}')">Aceptar Pedido</button>
+                        </div>
+                    </div>
+                `;
+                ordersContainer.appendChild(orderCard);
+            });
+        }
+
+        function acceptOrder(orderKey) {
+            // Actualizar estado del pedido en Firebase
+            // const db = firebase.database();
+            // const orderRef = db.ref('orders/' + orderKey);
+            // orderRef.update({ status: 'aceptado' });
+            
+            // Para el ejemplo, actualizamos en mockDatabase
+            const order = mockDatabase.orders.find(o => o.key === orderKey);
+            if (order) {
+                order.status = 'aceptado';
+                mockDatabase.notifyListeners();
+            }
+            
+            // Recargar pedidos
+            loadOrders();
+        }
+
+        // Escuchar nuevos pedidos
+        function listenForNewOrders() {
+            // const db = firebase.database();
+            // const ordersRef = db.ref('orders');
+            // ordersRef.on('child_added', (snapshot) => {
+            //     const order = snapshot.val();
+            //     if (order.status === 'pendiente') {
+            //         playNotificationSound();
+            //         showNotification('Nuevo pedido', 'Hay un nuevo pedido pendiente');
+            //         if (document.getElementById('repartidorPanel').classList.contains('show')) {
+            //             loadOrders();
+            //         }
+            //     }
+            // });
+            
+            // Para el ejemplo, usamos mockDatabase
+            mockDatabase.ref('orders').on('child_added', (snapshot) => {
+                const orders = snapshot.val();
+                const newOrder = orders[orders.length - 1];
+                if (newOrder.status === 'pendiente') {
+                    playNotificationSound();
+                    showNotification('Nuevo pedido', 'Hay un nuevo pedido pendiente');
+                    if (document.getElementById('repartidorPanel').classList.contains('show')) {
+                        loadOrders();
+                    }
+                }
+            });
+        }
+
+        function playNotificationSound() {
+            const sound = document.getElementById('notificationSound');
+            sound.currentTime = 0;
+            sound.play().catch(e => console.log("Error reproduciendo sonido: ", e));
+        }
+
+        function showNotification(title, message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { body: message });
+            } else if ('Notification' in window && Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification(title, { body: message });
+                    }
+                });
+            }
+        }
+
+        // Solicitar permiso para notificaciones al cargar la página
+        if ('Notification' in window) {
+            Notification.requestPermission();
+        }
+    </script>
 </body>
 </html>
