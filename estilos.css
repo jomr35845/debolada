@@ -8,7 +8,7 @@ body {
 .central{
 width: 50%;
 height: 200px;
-margi: auto;
+margin: auto;
 background: red;
 color: #fff;
 }
