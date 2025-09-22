@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor Aleatorio de YouTube</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+            height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ff5252;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .player-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Relación de aspecto 16:9 */
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: #ff5252;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            background: #ff3838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-info {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-size: 1.2rem;
+        }
+
+        .counter {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            color: #ccc;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        @media (min-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            h1 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Reproductor Aleatorio de YouTube</h1>
+            <p>Disfruta de una selección aleatoria de videos con reproducción automática</p>
+        </header>
+
+        <main>
+            <div class="player-container">
+                <div id="player"></div>
+            </div>
+            
+            <div class="video-info">
+                <p id="current-video">Selecciona "Reproducir" para comenzar</p>
+            </div>
+            
+            <div class="counter">
+                <p id="video-counter">Videos en la lista: 60</p>
+            </div>
+        </main>
+
+        <div class="controls">
+            <button class="btn" id="play-btn">Reproducir Video Aleatorio</button>
+            <button class="btn" id="next-btn">Siguiente Video</button>
+        </div>
+
+        <footer>
+            <p>Reproductor con HTML, CSS Grid y JavaScript - &copy; 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        // Código para la API de YouTube
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Variables globales
+        var player;
+        var currentVideoIndex = -1;
+        
+        // Lista de videos de YouTube (60 videos)
+        var videoIds = [
+            'whSGuASewEE',    // Video número 1
+            'TCpN7QVfCtA',    // Video número 2
+            'hNRVYM-Y4_Y',    // Video número 3
+            'vxO3tMIX5M8',    // Video número 4
+            'eY6Tp85pJ_A',    // Video número 5
+            '5eFfXs1ZdNQ',    // Video número 6
+            'nWMQ4RmlUrs',    // Video número 7
+            'OuYch0J-5EI',    // Video número 8
+            'UhzD9g4ogOA',    // Video número 9
+            'H6WIY2pYOe8',    // Video número 10
+            'IAy7W64w_Us',    // Video número 11
+            '4c_iNfsmyZQ',    // Video número 12
+            'fXEBiHCsubY',    // Video número 13
+            'ylHl0BcgAuk',    // Video número 14
+            'CwBSX3ISHF4',    // Video número 15
+            'Ci9kyZHYRjc',    // Video número 16
+            'D8827FBIG5s',    // Video número 17
+            'T22uwE7J-G0',    // Video número 18
+            'bUGx-S6d-m0',    // Video número 19
+            '78xxjPwx-DU',    // Video número 20
+            'eqWeCjXEbFg',    // Video número 21
+            'Iq5jZtm2fvo',    // Video número 22
+            'vRvOvN2umxA',    // Video número 23
+            'm2bXVJfzZTE',    // Video número 24
+            'vKrBIXyrxIU',    // Video número 25
+            'sFSLWWUdu0I',    // Video número 26
+            'NSuscjCDIFA',    // Video número 27
+            'Kx4HM3dz1lw',    // Video número 28
+            'VaBYBLVQs-U',    // Video número 29
+            'yd74ZF-n7UA',    // Video número 30
+            'zraABthsA3c',    // Video número 31
+            'XHJM52Jo60A',    // Video número 32
+            'SlPhMPnQ58k',    // Video número 33
+            'ZBybvBrNpZY',    // Video número 34
+            'CQLqyIFvedE',    // Video número 35
+            'OdHGuuOfrC4',    // Video número 36
+            'W8hHlS25l2M',    // Video número 37
+            'KQ6zr6kCPj8',    // Video número 38
+            'IcrbM1l_BoI',    // Video número 39
+            'vTIIMJ9tUc8',    // Video número 40
+            'Um7pMggPnug',    // Video número 41
+            'iPUmE-tne5U',    // Video número 42
+            'Kp7eSUU9oy8',    // Video número 43
+            '1G4isv_Fylg',    // Video número 44
+            'jofNR_WkoCE',    // Video número 45
+            'YQHsXMglC9A',    // Video número 46
+            'Z9GY6i2qLc8',    // Video número 47
+            '3JZ_D3ELwOQ',    // Video número 48
+            '3tmd-ClpJxA',    // Video número 49
+            'nYh-n7EOtMA',    // Video número 50
+            'YqeW9_5kURI',    // Video número 51
+            'fJ9rUzIMcZQ',    // Video número 52
+            'n61ULEU7CO0',    // Video número 53
+            '3KANI2dpXLw',    // Video número 54
+            'F4tHL8reNCs',    // Video número 55
+            'WIm1GgfRz6M',    // Video número 56
+            'L0MK7qz13bU',    // Video número 57
+            'pAgnJDJN4VA',    // Video número 58
+            'kPBzTxZQG5Q',    // Video número 59
+            'ebXbLfLACGM'     // Video número 60
+        ];
+
+        // Nombres de los videos para mostrar (simplificado)
+        var videoTitles = [];
+        for (let i = 0; i < videoIds.length; i++) {
+            videoTitles.push(`Video número ${i+1}`);
+        }
+
+        // Inicializar el reproductor de YouTube
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    'playsinline': 1,
+                    'modestbranding': 1,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        // Cuando el reproductor está listo
+        function onPlayerReady(event) {
+            document.getElementById('play-btn').addEventListener('click', playRandomVideo);
+            document.getElementById('next-btn').addEventListener('click', playRandomVideo);
+            document.getElementById('video-counter').textContent = `Videos en la lista: ${videoIds.length}`;
+        }
+
+        // Cambiar el estado del reproductor
+        function onPlayerStateChange(event) {
+            // Cuando el video termina, reproducir uno nuevo
+            if (event.data == YT.PlayerState.ENDED) {
+                setTimeout(playRandomVideo, 2000);
+            }
+        }
+
+        // Reproducir un video aleatorio
+        function playRandomVideo() {
+            // Generar un índice aleatorio que no sea el mismo que el actual
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * videoIds.length);
+            } while (newIndex === currentVideoIndex && videoIds.length > 1);
+            
+            currentVideoIndex = newIndex;
+            
+            // Cargar y reproducir el video
+            player.loadVideoById(videoIds[currentVideoIndex]);
+            player.unMute(); // Asegurar que el sonido esté activado
+            
+            // Actualizar la información del video
+            document.getElementById('current-video').textContent = 
+                `Reproduciendo: ${videoTitles[currentVideoIndex]}`;
+        }
+    </script>
+</body>
+</html>
