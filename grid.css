@@ -3,51 +3,32 @@
     padding:0;
 }
 body {
-   font-size:20px; 
-}
-.central{
-width: 90%;
-height: 200px;
-margin: auto;
-margin-top: 150px;
-background: #000;
-color: #fff;
+   font-size:20px;
 }
 .grid{
     display:grid;
     grid-template-columns:1fr;
     grid-gap:20px;
     margin:auto;
-    width:90%;
-    text-align:justify;
-    background:#000;
-    color: #fff;
-}
-.grid > div{
-    color:#000;
-    font-weight:bold;
-    padding:10px;
-    border-radius:5px;
+    padding-top:20px;
+    padding-bottom:20px;
+    width:100%;
+    text-align:center;
 }
 
 .grid2{
     display:grid;
     grid-template-columns:1fr 1fr;
-    grid-gap:5px;
+    grid-gap:10px;
     margin:auto;
-    margin-top:0px;
+    margin-top:20px;
     width:90%;
+    height: 150px;
     text-align:center;
     
 }
 
-.grid2 div{
-    background:orange;
-    color:white;
-    font-weight:bold;
-    padding:10px;
-    border-radius:5px;
-}
+
 .dunkin img{
     width:100%;
 }
