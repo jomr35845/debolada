@@ -1,9 +1,61 @@
-.hder{
-width:100%;
-height:50px;
-background: #000;
-color: #fff;
+.grid > div{
+    background:#000;
+    color:#fff;
+    font-weight:bold;
+    padding:10px;
 }
-h3{
-padding:20px;
+
+.grid2 div{
+    background:orange;
+    color:white;
+    font-weight:bold;
+    padding:10px;
+    border-radius:5px;
+}
+.bbo{
+    border-bottom: 2px solid #000;
+}
+.npage{
+    width: 100%;
+    height: 79vh;
+    overflow: hidden;
+}
+.npage > iframe{
+    width: 100%;
+    height: 79vh;
+    
+}
+
+.slider{
+    width: 90%;
+    height: 200px;
+    margin: auto;
+    margin-top:20px;
+    border: 2px solid #000;
+    border-radius: 5px;
+    background: red;
+    color:#fff;
+    background: red;
+}
+.slider img{
+    width: 100%;
+    height: 200px;
+    border-radius: 5px;
+}
+
+.carru{
+    width: 90%;
+    height: 45px;
+    background: blue;
+    color:#fff;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.rest{
+    width: 90%;
+    height: 200px;
+    background: black;
+    margin: auto;
+    margin-top:30px;
 }
