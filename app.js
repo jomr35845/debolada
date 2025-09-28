@@ -1,5 +1,5 @@
 // Seleccionamos el botón
-    const boton = document.getElementById("b-king");
+    const boton = document.querySelector(".b-king");
 
     // Agregamos el event listener
     boton.addEventListener("click", () => {
