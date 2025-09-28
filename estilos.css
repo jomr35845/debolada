@@ -30,7 +30,7 @@
 .npage > iframe{
     width: 100%;
     height: 79vh;
-    
+
 }
 
 .slider{
@@ -78,4 +78,7 @@
     font-weight:bold;
     padding:10px;
     border-radius:5px;
+}
+.npage{
+    overflow: scroll;
 }
